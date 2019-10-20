@@ -21,11 +21,15 @@ let interval
 const init = () => {
     // window is loaded, image src is loaded, we're good to go!
     drawState()
-    interval = setInterval(onTimerTick, 33) // 30 frames per second
 
     document.getElementById('stop').addEventListener('click', () => {
         clearInterval(interval)
     })
+    
+    document.getElementById('start').addEventListener('click', () => {
+        interval = setInterval(onTimerTick, 33) // 30 frames per second
+    })
+
 }
 
 const updateState = () => {
