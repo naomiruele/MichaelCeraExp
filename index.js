@@ -3,11 +3,13 @@ let windowHeight = document.body.clientHeight
 const ceraWidth = 379
 const ceraHeight = 659
 let ceraX = windowWidth / 2
-let ceraY =  windowHeight / 2
+let ceraY = windowHeight / 2
 let vx = 1
 let vy = 1
 let ax = 2
 let ay = 2
+let mouseX
+let mouseY
 
 const image = new Image(ceraWidth, ceraHeight)
 const aspectRatio = image.height / image.width
@@ -29,10 +31,31 @@ const init = () => {
     document.getElementById('start').addEventListener('click', () => {
         interval = setInterval(onTimerTick, 33) // 30 frames per second
     })
-
+    window.addEventListener('mousemove', (event) => {
+      mouseX = event.pageX
+      mouseY = event.pageY  
+    })
 }
 
-const updateState = () => {
+const updateState = (collision) => {
+
+    const ceraCenterX = ceraX + (0.5 * scaledWidth)
+    const ceraCenterY = ceraY + (0.5 * scaledHeight)
+    if (collision) {
+        if (mouseX < ceraCenterX) {
+            vx = 20
+        }
+        if (mouseX >= ceraCenterX) {
+            vx = -20
+        }
+        if (mouseY < ceraCenterY) {
+            vy = 20
+        }
+        if (mouseY >= ceraCenterY) {
+            vy = -20
+        }
+    }
+
     const sign = Math.random() > 0.5 ? -1 : 1
     vx = vx + (sign * (Math.random() * ax))
     vy = vy + (sign * (Math.random() * ay))
@@ -55,15 +78,30 @@ const updateState = () => {
 }
 
 const onTimerTick = () => {
-    updateState()
+    const c = detectCollision()
+    updateState(c)
     drawState()
 }
 
 const drawState = () => {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(image, ceraX, ceraY, scaledWidth, scaledHeight)
+    // if(collision) {
+    //     context.beginPath()
+    //     context.arc(mouseX, mouseY, 50, 0, 2 * Math.PI)
+    //     context.stroke()
+    // }
+    
 }
 
+const detectCollision = () => {
+    const mouseXInCeraX = mouseX >= ceraX && mouseX <= (ceraX + scaledWidth)
+    const mouseYInCeraY = mouseY >= ceraY && mouseY <= (ceraY + scaledHeight)
+    if (mouseXInCeraX && mouseYInCeraY){
+        return true
+    }
+    return false
+}
 
 window.addEventListener('load', () => {
     canvas = document.getElementById('canvas')
