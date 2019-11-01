@@ -12,6 +12,7 @@ let mouseX
 let mouseY
 
 const image = new Image(ceraWidth, ceraHeight)
+const imageFlipped = new Image(ceraWidth, ceraHeight)
 const aspectRatio = image.height / image.width
 const scaledWidth = 100
 const scaledHeight = 100 * aspectRatio
@@ -26,10 +27,13 @@ const init = () => {
 
     document.getElementById('stop').addEventListener('click', () => {
         clearInterval(interval)
+        interval = null
     })
     
     document.getElementById('start').addEventListener('click', () => {
-        interval = setInterval(onTimerTick, 33) // 30 frames per second
+        if(!interval) {
+            interval = setInterval(onTimerTick, 33) // 30 frames per second
+        }
     })
     window.addEventListener('mousemove', (event) => {
       mouseX = event.pageX
@@ -80,12 +84,20 @@ const updateState = (collision) => {
 const onTimerTick = () => {
     const c = detectCollision()
     updateState(c)
-    drawState()
+    drawState(c)
 }
 
-const drawState = () => {
+const drawState = (collision) => {
+    if(collision) {
+        // image.style.Transform = "rotate(90deg)";
+        // imageFlipped.style.Transform = "rotate(90deg)";
+    }
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(image, ceraX, ceraY, scaledWidth, scaledHeight)
+    if(vx >= 0){
+        context.drawImage(image, ceraX, ceraY, scaledWidth, scaledHeight)
+    } else {
+        context.drawImage(imageFlipped, ceraX, ceraY, scaledWidth, scaledHeight)
+    }
     // if(collision) {
     //     context.beginPath()
     //     context.arc(mouseX, mouseY, 50, 0, 2 * Math.PI)
@@ -110,7 +122,11 @@ window.addEventListener('load', () => {
     context = canvas.getContext('2d')
     image.addEventListener('load', () => {
         // draw the image to the canvas
-        init()
+        imageFlipped.src = './cera-prancing-flipped.png'
+        imageFlipped.addEventListener('load', () => {
+            init()
+        })
+        
     })
     image.src = './cera-prancing.png'
 })
